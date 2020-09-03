@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./js/react.development.js"></script>
+    <script src="./js/react-dom.development.js"></script>
+    <script src="./js/babel.min.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="text/babel">
+        class App extends React.Component{
+            constructor(){
+                super()
+                this.state={
+                    list:["a","b","c"],
+                    newList:[],
+                    flag:true
+                }
+            }
+            add = (e) => {
+                if(e.keyCode === 13){
+                    //更改状态要调用setState方法
+                    this.setState({
+                        list:[...this.state.list,e.target.value]
+                    })
+                    e.target.value = ""
+                }
+            }
+            delete = (index) => {
+                // this.state.list.splice(index,1)
+                // this.setState({
+                //     list:this.state.list
+                // })
+                this.setState({
+                   list:this.state.list.filter((item,i) => {
+                        if(i === index){
+                            return false
+                        }
+                        return true
+                   })
+                })
+            }
+            upadte = (index) => {
+                let newValue = prompt("请输入修改的值")
+                this.state.list[index] = newValue
+                this.setState({
+                    list:this.state.list
+                })
+            }
+            blurFind = () => {
+                let keyword = prompt("请输入关键字")
+                //从数组中进行查询遍历每个字符串，是否包含关键字
+                var result = this.state.list.filter(item => item.includes(keyword))
+                // console.log(result)
+                //查询到得关键字进行高亮
+                result.forEach((item,i,arr)=>{
+                    console.log(item,i,arr)
+                    arr[i] = item.replace(new RegExp(keyword,"g"),"<span style='color:red'>"+keyword+"</span>")
+                })
+                this.setState({
+                    newList:result,
+                    flag:false
+                })
+            }
+
+            render(){
+                let {list,newList,flag} = this.state
+               
+                return(
+                    <div>
+                        <input type="text" name="textInput" onKeyUp={this.add}/>
+                        <button onClick={this.blurFind}>模糊查询</button>
+                        <button onClick={()=>{this.setState({flag:true,newList:[]})}}>返回</button>
+                        <ul style={{display:flag ? "block":"none"}}>
+                            {
+                                list.map((item,index) => {
+                                    return <li key={index}>
+                                    {item}
+                                    <button onClick={this.delete.bind(this,index)}>删除</button>
+                                    <button onClick={this.upadte.bind(this,index)}>修改</button>
+                                </li>
+                                })
+                            }    
+                        </ul>
+                        <ul>
+                            {
+                                newList.map((item,index) => {
+                                    return <li key={index} dangerouslySetInnerHTML={ {__html: item} }></li>
+                                })
+                            }
+                        </ul>
+                    </div>
+                )
+            }
+        }
+
+        ReactDOM.render(<App/>,document.getElementById("app"))
+    </script>
+</body>
+</html>
